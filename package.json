@@ -1,0 +1,28 @@
+{
+  "name": "templates",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npx tsc",
+    "start": "node dist/server.js",
+    "dev": "npx tsc -w & nodemon dist/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.0",
+    "nodemon": "^3.1.10",
+    "typescript": "^5.9.3"
+  },
+  "type": "module"
+}
