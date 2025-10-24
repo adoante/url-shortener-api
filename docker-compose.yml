@@ -1,0 +1,18 @@
+services:
+  # ExpressJS Service
+  express:
+    build: .
+    container_name: url-shortener-api
+    env_file:
+      - .env
+    command: sh -c "npm run dev"
+    expose:
+      - "3000"
+    networks:
+      - default
+      - webnet # For Caddy reverse proxy
+    restart: unless-stopped
+
+networks:
+  webnet:
+    external: true
