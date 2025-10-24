@@ -56,17 +56,17 @@ app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
 	const short = base62.encodeInteger(data.id)
 	console.log(short)
 
-	const { data: finalData, error: finalError } = await supabase
+	const { data: updateData, error: updateError } = await supabase
 		.from('URL')
 		.update({ short: short })
 		.eq("id", data.id)
 		.select()
 
-	if (finalError) {
-		return res.status(500).send(finalError.message)
+	if (updateError) {
+		return res.status(500).send(updateError.message)
 	}
 
-	return res.status(201).json(finalData)
+	return res.status(201).json(updateData)
 })
 
 app.get("/:short", async (req: Request, res: Response,) => {
@@ -74,20 +74,26 @@ app.get("/:short", async (req: Request, res: Response,) => {
 
 	const { short } = req.params
 
-	const { data, error } = await supabase
+	const { data: readData, error: readError } = await supabase
 		.from("URL")
-		.select("full")
+		.select("id, full, clicks")
 		.eq("short", short)
 		.single()
 
-	if (error) {
-		return res.status(500).send(error.message)
+	if (readError) {
+		return res.status(500).send(readError.message)
 	}
 
-	const full = data.full
+	const { error: updateError } = await supabase
+		.from('URL')
+		.update({ clicks: readData.clicks + 1 })
+		.eq("id", readData.id)
 
-	res.redirect(full)
+	if (updateError) {
+		return res.status(500).send(updateError.message)
+	}
 
+	res.redirect(readData.full)
 })
 
 app.listen(port, () => {
