@@ -17,7 +17,7 @@ router.get("/login/:provider", async (req: Request, res: Response) => {
 	const { data, error } = await supabase.auth.signInWithOAuth({
 		provider: provider as Provider,
 		options: {
-			redirectTo: `http://localhost:3000/auth/callback`,
+			redirectTo: `https://adoante.com/auth/callback`,
 		},
 	})
 
