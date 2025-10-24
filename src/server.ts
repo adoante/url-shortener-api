@@ -4,7 +4,8 @@ import base62 from "@sindresorhus/base62"
 
 import auth from "./auth.js"
 import { requireAuth } from "./middleware/requireAuth.js"
-import { createClient } from "./supabase.js"
+import { createClient as createServerClient } from "./supabase.js"
+import { createClient } from "@supabase/supabase-js"
 
 import type { Express, Request, Response } from "express"
 import type { TablesInsert } from "./types/database.types.js"
@@ -22,7 +23,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
-	const supabase = createClient({ req, res })
+	const supabase = createServerClient({ req, res })
 
 	const { full } = req.body
 
@@ -70,11 +71,13 @@ app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
 })
 
 app.get("/:short", async (req: Request, res: Response,) => {
-	const supabase = createClient({ req, res })
-
+	const supabaseAdmin = createClient(
+		process.env.SUPABASE_URL as string,
+		process.env.SUPABASE_SERVICE_ROLE_KEY as string  // Full admin key
+	)
 	const { short } = req.params
 
-	const { data: readData, error: readError } = await supabase
+	const { data: readData, error: readError } = await supabaseAdmin
 		.from("URL")
 		.select("id, full, clicks")
 		.eq("short", short)
@@ -84,7 +87,7 @@ app.get("/:short", async (req: Request, res: Response,) => {
 		return res.status(500).send(readError.message)
 	}
 
-	const { error: updateError } = await supabase
+	const { error: updateError } = await supabaseAdmin
 		.from('URL')
 		.update({ clicks: readData.clicks + 1 })
 		.eq("id", readData.id)
