@@ -16,7 +16,8 @@ const app: Express = express();
 const port = process.env.PORT
 
 app.use(cors({
-	origin: "*",        // allow all origins
+	origin: ["http://localhost:3000", "https://adoante.com"],
+	credentials: true,
 	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 	allowedHeaders: ["Content-Type", "Authorization"],
 }))
