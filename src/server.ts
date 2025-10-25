@@ -116,14 +116,12 @@ app.get("/user/urls", async (req: Request, res: Response) => {
 		.from("URL")
 		.select("full, created_at, short, clicks")
 		.eq("created_by", user.id)
-		.select()
 
 	if (readError) {
 		return res.status(500).send(readError.message)
 	}
 
 	res.status(200).json(readData)
-
 })
 
 app.listen(port, () => {
