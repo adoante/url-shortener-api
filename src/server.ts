@@ -2,6 +2,8 @@ import express from "express"
 import "dotenv/config"
 import base62 from "@sindresorhus/base62"
 import cors from "cors"
+import path from "path"
+import {fileURLToPath} from "url"
 
 import auth from "./auth.js"
 import { requireAuth } from "./middleware/requireAuth.js"
@@ -14,6 +16,10 @@ import type { TablesInsert } from "./types/database.types.js"
 const app: Express = express();
 
 const port = process.env.PORT
+
+const rootDir = path.resolve()
+
+app.use(express.static(path.join(rootDir, 'out')));
 
 app.use(
 	cors({
@@ -35,7 +41,7 @@ app.use(express.json())
 app.use("/auth", auth)
 
 app.get("/", (req: Request, res: Response) => {
-	res.json({ message: "Adolfo Gante's URL Shortener." })
+	res.sendFile(path.join(rootDir, "out", "index.html"));
 });
 
 app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
@@ -139,6 +145,7 @@ app.get("/user/urls", async (req: Request, res: Response) => {
 
 	res.status(200).json(readData)
 })
+
 
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
