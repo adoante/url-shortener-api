@@ -28,11 +28,21 @@ router.get("/login/:provider", async (req: Request, res: Response) => {
 	}
 })
 
-router.get('/callback', async (req: Request, res: Response) => {
+router.get("/callback", async (req: Request, res: Response) => {
 	const supabase = createClient({ req, res })
+
+	// Exchange the code for a session
 	const code = req.query.code as string
-	await supabase.auth.exchangeCodeForSession(code)
-	res.redirect('/')
+	const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code)
+
+	if (error) return res.status(400).send(error.message)
+	if (!sessionData.session) return res.status(400).send("No session returned")
+
+	const accessToken = sessionData.session.access_token
+
+	// Redirect to your frontend with token
+	const frontendUrl = `http://localhost:3000/auth?token=${accessToken}`
+	res.redirect(frontendUrl)
 })
 
 router.get("/logout", async (req: Request, res: Response) => {
