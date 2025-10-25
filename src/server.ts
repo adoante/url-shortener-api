@@ -99,6 +99,33 @@ app.get("/:short", async (req: Request, res: Response,) => {
 	res.redirect(readData.full)
 })
 
+app.get("/user/urls", async (req: Request, res: Response) => {
+	const supabase = createServerClient({ req, res })
+
+	const { data: { user }, error } = await supabase.auth.getUser()
+
+	if (error) {
+		return res.status(400).send(error.message)
+	}
+
+	if (!user) {
+		return res.status(401).json({ error: "No user found." })
+	}
+
+	const { data: readData, error: readError } = await supabase
+		.from("URL")
+		.select("full, created_at, short, clicks")
+		.eq("created_by", user.id)
+		.select()
+
+	if (readError) {
+		return res.status(500).send(readError.message)
+	}
+
+	res.status(200).json(readData)
+
+})
+
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
 });
