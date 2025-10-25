@@ -1,6 +1,7 @@
 import express from "express"
 import "dotenv/config"
 import base62 from "@sindresorhus/base62"
+import cors from "cors"
 
 import auth from "./auth.js"
 import { requireAuth } from "./middleware/requireAuth.js"
@@ -13,6 +14,12 @@ import type { TablesInsert } from "./types/database.types.js"
 const app: Express = express();
 
 const port = process.env.PORT
+
+app.use(cors({
+	origin: "*",        // allow all origins
+	methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+	allowedHeaders: ["Content-Type", "Authorization"],
+}))
 
 app.use(express.json())
 
