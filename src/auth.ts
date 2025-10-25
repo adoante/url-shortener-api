@@ -48,19 +48,17 @@ router.get("/callback", async (req: Request, res: Response) => {
 router.get("/logout", async (req: Request, res: Response) => {
 	const supabase = createClient({ req, res })
 
-	const { data: { session } } = await supabase.auth.getSession()
+	// Clear Supabase session cookie
+	await supabase.auth.signOut()
 
-	if (!session) {
-		return res.status(401).json({ error: "No active session" })
-	}
+	// Get redirect target or fallback
+	const redirectTo =
+		typeof req.query.redirect_to === "string"
+			? req.query.redirect_to
+			: "https://adoante.com"
 
-	const { error } = await supabase.auth.signOut()
-
-	if (error) {
-		return res.status(400).send(error.message)
-	}
-
-	res.status(200).json({ message: "Logged out." })
+	// Redirect user
+	return res.redirect(302, redirectTo)
 })
 
 router.get("/me", async (req: Request, res: Response) => {
