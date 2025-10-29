@@ -3,7 +3,7 @@ import "dotenv/config"
 import base62 from "@sindresorhus/base62"
 import cors from "cors"
 import path from "path"
-import {fileURLToPath} from "url"
+import { fileURLToPath } from "url"
 
 import auth from "./auth.js"
 import { requireAuth } from "./middleware/requireAuth.js"
@@ -87,11 +87,23 @@ app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
 })
 
 app.get("/:short", async (req: Request, res: Response,) => {
+	const { short } = req.params
+
+	const reserved = new Set([
+		"login",
+		"dashboard",
+		"privacy",
+		"terms",
+	]);
+
+	if (short && reserved.has(short)) {
+		return res.sendFile(path.join(rootDir, "out", "index.html"));
+	}
+
 	const supabaseAdmin = createClient(
 		process.env.SUPABASE_URL as string,
 		process.env.SUPABASE_SERVICE_ROLE_KEY as string  // Full admin key
 	)
-	const { short } = req.params
 
 	const { data: readData, error: readError } = await supabaseAdmin
 		.from("URL")
