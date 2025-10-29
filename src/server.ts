@@ -19,8 +19,6 @@ const port = process.env.PORT
 
 const rootDir = path.resolve()
 
-app.use(express.static(path.join(rootDir, 'out')));
-
 app.use(
 	cors({
 		origin: (origin, callback) => {
@@ -39,10 +37,6 @@ app.use(
 app.use(express.json())
 
 app.use("/auth", auth)
-
-app.get("/", (req: Request, res: Response) => {
-	res.sendFile(path.join(rootDir, "out", "index.html"));
-});
 
 app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
 	const supabase = createServerClient({ req, res })
@@ -146,6 +140,12 @@ app.get("/user/urls", async (req: Request, res: Response) => {
 	res.status(200).json(readData)
 })
 
+
+app.use(express.static(path.join(rootDir, 'out')));
+
+app.use((req: Request, res: Response) => {
+	res.sendFile(path.join(rootDir, "out", "index.html"));
+});
 
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
