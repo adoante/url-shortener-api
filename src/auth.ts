@@ -42,7 +42,7 @@ router.get("/callback", async (req: Request, res: Response) => {
 
 	// Redirect to your frontend with token
 	//const frontendUrl = `http://localhost:3000/auth?token=${accessToken}`
-	res.redirect("/")
+	res.redirect("/dashboard")
 })
 
 router.get("/logout", async (req: Request, res: Response) => {
