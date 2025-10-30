@@ -3,7 +3,6 @@ import "dotenv/config"
 import base62 from "@sindresorhus/base62"
 import cors from "cors"
 import path from "path"
-import { fileURLToPath } from "url"
 
 import auth from "./auth.js"
 import { requireAuth } from "./middleware/requireAuth.js"
@@ -12,6 +11,7 @@ import { createClient } from "@supabase/supabase-js"
 
 import type { Express, Request, Response } from "express"
 import type { TablesInsert } from "./types/database.types.js"
+import { safeBrowsing } from "./lib/safeBrowsing.js"
 
 const app: Express = express();
 
@@ -42,6 +42,11 @@ app.post("/shorten", requireAuth, async (req: Request, res: Response) => {
 	const supabase = createServerClient({ req, res })
 
 	const { full } = req.body
+
+	const isSafe = await safeBrowsing(full)
+	if (!isSafe) {
+		return res.status(403).json({ error: "Unsafe or phishing URL detected" })
+	}
 
 	const { data: { user }, error: getUserError } = await supabase.auth.getUser()
 
